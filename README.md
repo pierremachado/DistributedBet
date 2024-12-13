@@ -12,7 +12,7 @@ O back-end do projeto foi desenvolvido utilizando contratos inteligentes escrito
 
 Essa seção possui o objetivo de discorrer sobre a teoria utilizada para a solução do problema. Os conceitos principais sobre sistemas distribuídos serão apresentados e detalhados.
 
-# 1. Sistemas distribuídos
+### 1. Sistemas distribuídos
 
 Define-se um sistema distribuído como “um conjunto de computadores independentes que se apresenta aos seus usuários como um sistema único e coerente” (TANENBAUM, 2007, p. 1). Segundo o autor, as principais características de um sistema distribuído incluem a ocultação da organização dos computadores para os usuários e o acesso consistente e uniforme ao sistema. Isso significa que quaisquer alterações realizadas por um usuário ou aplicação devem ser refletidas de maneira consistente em todo o sistema.
 
@@ -28,7 +28,7 @@ Os sistemas distribuídos alcançam flexibilidade e escalabilidade ao dividir ap
 
 Portanto, para que um sistema distribuído garanta as propriedades de atomicidade, consistência, isolamento e durabilidade, é necessário lidar com diferentes situações relacionadas às redes, ao tempo e aos comportamentos dos nós. Essas questões exigem abordagens específicas que serão discutidas nos tópicos a seguir.
 
-# 2. Teorema CAP: Consistência, Disponibilidade e Partição de Rede
+### 2. Teorema CAP: Consistência, Disponibilidade e Partição de Rede
 
 ## Referências
 
