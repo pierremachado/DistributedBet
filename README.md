@@ -1,6 +1,6 @@
 # DistributedBet
 
-# Introdução
+## Introdução
 
 Na atualidade, o mercado das apostas tem crescido como nunca se viu antes. A variedade de casas e diferentes jogos de apostas (esportivas, cassino, entre outros) no mercado tem atraído cada vez mais clientes e movimentado bilhões de dólares no mundo. Ademais, a versatilidade das apostas online, devido à ascensão e democratização da internet pelo planeta tem tornado o ato da aposta cada vez mais prático para os usuários.
 
