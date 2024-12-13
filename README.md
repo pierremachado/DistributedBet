@@ -115,12 +115,12 @@ O sistema valida erros, criando permissões personalizadas para certas funções
 
 Foram criados events Solidity - estes não se referem às instâncias da estrutura Event criada, mas sim aos events nativos do Solidity - para notificar aos usuários sobre atualizações na blockchain, reforçando a transparência e segurança do projeto, como foi requisitado à equipe. Seguem os events:
 
-EventCreated: anuncia aos usuários a criação de novo evento para apostas;
-BetClosed: anuncia encerramento de evento aos clientes;
-UserRegistered: anuncia a inserção de novo usuário no sistema;
-Deposit: anuncia um depósito na carteira;
-Withdrawal: anuncia saque na carteira;
-OddChange: anuncia alteração em Odd de uma aposta específica, o que é importante para a atualização dinâmica para interfaces que apresentem os dados dos eventos.
+- EventCreated: anuncia aos usuários a criação de novo evento para apostas;
+- BetClosed: anuncia encerramento de evento aos clientes;
+- UserRegistered: anuncia a inserção de novo usuário no sistema;
+- Deposit: anuncia um depósito na carteira;
+- Withdrawal: anuncia saque na carteira;
+- OddChange: anuncia alteração em Odd de uma aposta específica, o que é importante para a atualização dinâmica para interfaces que apresentem os dados dos eventos.
 
 ## Resultados e discussões
 
