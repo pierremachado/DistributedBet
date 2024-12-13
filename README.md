@@ -26,9 +26,25 @@ Outra característica relevante, segundo Tanenbaum, é o compartilhamento de rec
 
 Os sistemas distribuídos alcançam flexibilidade e escalabilidade ao dividir aplicações entre diferentes "nós" interconectados em uma malha distribuída pela rede. Esses "nós" podem estar localizados em diferentes localizações geográficas, embora isso não seja uma exigência. No entanto, esses sistemas estão sujeitos a falhas específicas, distintas das enfrentadas por um servidor centralizado. Falhas de rede ainda são previstas, mas os sistemas distribuídos devem ser projetados para tolerar o mau funcionamento de um ou mais "nós" sem comprometer o funcionamento geral do sistema (KLEPPMANN, 2020).
 
-Portanto, para que um sistema distribuído garanta as propriedades de atomicidade, consistência, isolamento e durabilidade, é necessário lidar com diferentes situações relacionadas às redes, ao tempo e aos comportamentos dos nós. Essas questões exigem abordagens específicas que serão discutidas nos tópicos a seguir.
+Portanto, para que um sistema distribuído que implemente bancos de dados garanta as propriedades de atomicidade, consistência, isolamento e durabilidade, é necessário lidar com diferentes situações relacionadas às redes, ao tempo e aos comportamentos dos nós. Essas questões exigem abordagens específicas que serão discutidas nos tópicos a seguir.
 
-### 2. Teorema CAP: Consistência, Disponibilidade e Partição de Rede
+### 2. Assunções de modelagem do sistema
+
+### 3. Propriedades ACID
+
+### 4. Teorema CAP
+
+### 5. Consenso
+
+### 6. Ledger distribuído
+
+### 7. Blockchain
+
+## Metodologia
+
+## Resultados e discussões
+
+## Conclusão
 
 ## Referências
 
