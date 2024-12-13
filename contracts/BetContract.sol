@@ -19,24 +19,14 @@ contract BetContract {
         Bet[] participants;
     }
 
-    struct Account {
-        bool created;
-        uint256 amount;
-    }
-
-    mapping(address => Account) public wallets;
-
     Event[] allEvents;
 
     event EventCreated(uint256 indexed id, string eventType, uint256 odd);
     event BetClosed(uint256 indexed id, uint8 result);
     event UserRegistered(address indexed client);
+    event Deposit(address indexed user, uint256 amount);
+    event Withdrawal(address indexed user, uint256 amount);
     event OddChange(uint256 eventId, uint256 newOdd);
-
-    modifier isRegistered(address client) {
-        require(wallets[msg.sender].created, "Cliente ainda nao cadastrado.");
-        _;
-    }
 
     modifier onlyCreator(uint256 _betId) {
         require(
@@ -59,32 +49,41 @@ contract BetContract {
         _;
     }
 
+
+    mapping(address => bool) public isRegistered;
+
+    modifier onlyRegistered() {
+        require(isRegistered[msg.sender], "Usuario nao registrado");
+        _;
+    }
+
     function register() public {
-        require(wallets[msg.sender].created == false, "Usuario ja existe");
-        wallets[msg.sender] = Account({created: true, amount: 0});
+        require(!isRegistered[msg.sender], "Usuario ja existe");
+        isRegistered[msg.sender] = true;
 
         emit UserRegistered(msg.sender);
     }
 
-    function getWallet()
-        public
-        view
-        isRegistered(msg.sender)
-        returns (uint256)
-    {
-        return wallets[msg.sender].amount;
-    }
-
-    function deposit() public payable isRegistered(msg.sender) {
+    function deposit() public payable onlyRegistered {
         require(msg.value > 0, "Valor deve ser maior que 0");
-        wallets[msg.sender].amount += msg.value;
+        emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint256 value) public isRegistered(msg.sender) {
-        require(value <= wallets[msg.sender].amount, "Saldo insuficiente");
-        wallets[msg.sender].amount -= value;
-        (bool success, ) = msg.sender.call{value: value}("");
+    function withdraw(uint256 amount) public onlyRegistered {
+        require(
+            address(this).balance >= amount,
+            "Saldo do contrato insuficiente"
+        );
+        require(amount > 0, "Valor deve ser maior que 0");
+
+        (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Falha ao transferir fundos");
+
+        emit Withdrawal(msg.sender, amount);
+    }
+
+    function getBalance() public view onlyRegistered returns (uint256) {
+        return address(this).balance;
     }
 
     function createEvent(string memory eventType, uint256 odd) public {
@@ -104,12 +103,16 @@ contract BetContract {
         public
         creatorCanNotBet(eventId)
         betIsActive(eventId)
-        isRegistered(msg.sender)
+        onlyRegistered()
     {
         require(betValue > 0, "Valor nao permitido");
-        require(betValue <= wallets[msg.sender].amount, "Saldo insuficiente");
+        require(
+            address(this).balance >= betValue,
+            "Saldo insuficiente no contrato"
+        );
 
-        wallets[msg.sender].amount -= betValue;
+        address(this).call{value: betValue}("");
+
         allEvents[eventId].amount += betValue;
 
         allEvents[eventId].participants.push(
@@ -128,7 +131,7 @@ contract BetContract {
     )
         public
         onlyCreator(eventId)
-        isRegistered(msg.sender)
+        onlyRegistered()
         betIsActive(eventId)
     {
         for (uint i = 0; i < allEvents[eventId].participants.length; i++) {
@@ -139,12 +142,16 @@ contract BetContract {
                     allEvents[eventId].amount >= payout,
                     "Insufficient funds to pay winners"
                 );
-                wallets[b.gambler].amount += payout;
                 allEvents[eventId].amount -= payout;
+                (bool successPayWinners, ) = b.gambler.call{value: payout}("");
+                require(successPayWinners, "Falha ao pagar ganhadores");
             }
         }
         allEvents[eventId].isClosed = true;
-        wallets[allEvents[eventId].creator].amount += allEvents[eventId].amount;
+        (bool success, ) = allEvents[eventId].creator.call{value: allEvents[eventId].amount}(
+            ""
+        );
+        require(success, "Falha ao transferir fundos restantes para o criador");
         emit BetClosed(eventId, result);
     }
 
