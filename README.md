@@ -71,7 +71,7 @@ As funções precisam possuir regras de acesso, visando privacidade e segurança
 
 O “back-end” do produto foi majoritariamente escrito em cima de contratos inteligentes para uma blockchain Ethereum, que garante a proposta de completa descentralização do sistema. O ambiente de desenvolvimento HardHat foi utilizado para modelagem e testagem dos contratos.
 
-### Estruturação
+### 1. Estruturação
 
 O contrato foi modelado sobre três estruturas: Account, Event e Bet. A estrutura Account armazena valores da moeda virtual a ser apostada nos eventos, que será armazenada nas carteiras virtuais da aplicação. Para esse protótipo, não foi priorizado criar um câmbio entre a criptomoeda Ether e a moeda virtual da aplicação. Ou seja, foi mantido um câmbio de um para um (1 Ether = 1 moeda virtual da aplicação). Seguem os atributos de Account:
 
@@ -94,7 +94,7 @@ gambler: id do apostador;
 - betValue: valor a ser apostado;
 - currentOdd: odd calculada para o momento que o usuário apostou.
 
-### Funções
+### 2. Funções
 
 O contrato desenvolvido, a ser descrito nesse tópico, visou atender os requisitos de gerenciamento da carteira dos clientes, usando para câmbio a criptomoeda Ether, do Ethereum. Outros requisitos a serem atendidos são a consulta, criação, manutenção e inscrição em apostas. Seguem as funções desenvolvidas:
 
@@ -110,6 +110,8 @@ O contrato desenvolvido, a ser descrito nesse tópico, visou atender os requisit
 - listAllEvents(): lista todos eventos cadastrados.
 
 O sistema valida erros, criando permissões personalizadas para certas funções, a partir de “modifiers” Solidity. Funções que alteram um dado evento criado só podem ser acessadas pelo criador do evento. Praticamente todas as funções só podem ser acessadas por usuários registrados. Usuários só podem apostar em eventos ativos. Criadores de eventos não podem apostar nos próprios eventos, por fins de segurança.
+
+### 3. Eventos 
 
 Foram criados events Solidity - estes não se referem às instâncias da estrutura Event criada, mas sim aos events nativos do Solidity - para notificar aos usuários sobre atualizações na blockchain, reforçando a transparência e segurança do projeto, como foi requisitado à equipe. Seguem os events:
 
