@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract BetContract {
-    uint256 constant MIN_PARTICIPANTS_PER_EVENT = 10;
-
     struct Bet {
         address gambler;
         uint8 bet;
@@ -26,13 +24,14 @@ contract BetContract {
         uint256 amount;
     }
 
-    Event[] allEvents;
-
     mapping(address => Account) public wallets;
 
+    Event[] allEvents;
+
     event EventCreated(uint256 indexed id, string eventType, uint256 odd);
-    event BetClosed(uint256 indexed id, string eventType, uint8 result);
+    event BetClosed(uint256 indexed id, uint8 result);
     event UserRegistered(address indexed client);
+    event OddChange(uint256 eventId, uint256 newOdd);
 
     modifier isRegistered(address client) {
         require(wallets[msg.sender].created, "Cliente ainda nao cadastrado.");
@@ -121,5 +120,39 @@ contract BetContract {
                 currentOdd: allEvents[eventId].odd
             })
         );
+    }
+
+    function closeEventAndPayWinners(
+        uint256 eventId,
+        uint8 result
+    )
+        public
+        onlyCreator(eventId)
+        isRegistered(msg.sender)
+        betIsActive(eventId)
+    {
+        for (uint i = 0; i < allEvents[eventId].participants.length; i++) {
+            Bet memory b = allEvents[eventId].participants[i];
+            if (b.bet == result) {
+                uint256 payout = b.currentOdd * b.betValue;
+                require(
+                    allEvents[eventId].amount >= payout,
+                    "Insufficient funds to pay winners"
+                );
+                wallets[b.gambler].amount += payout;
+                allEvents[eventId].amount -= payout;
+            }
+        }
+        allEvents[eventId].isClosed = true;
+        wallets[allEvents[eventId].creator].amount += allEvents[eventId].amount;
+        emit BetClosed(eventId, result);
+    }
+
+    function changeOdd(
+        uint256 eventId,
+        uint256 newOdd
+    ) public onlyCreator(eventId) {
+        allEvents[eventId].odd = newOdd;
+        emit OddChange(eventId, newOdd);
     }
 }
