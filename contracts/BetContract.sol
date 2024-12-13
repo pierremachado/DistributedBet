@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract BetContract {
-
     uint256 constant MIN_PARTICIPANTS_PER_EVENT = 10;
 
     struct Bet {
@@ -62,6 +61,7 @@ contract BetContract {
     }
 
     function register() public {
+        require(wallets[msg.sender].created == false, "Usuario ja existe");
         wallets[msg.sender] = Account({created: true, amount: 0});
 
         emit UserRegistered(msg.sender);
@@ -82,11 +82,10 @@ contract BetContract {
     }
 
     function withdraw(uint256 value) public isRegistered(msg.sender) {
-        require(
-            value <= wallets[msg.sender].amount,
-            "Cliente nao ha saldo suficiente"
-        );
-        payable(msg.sender).transfer(value);
+        require(value <= wallets[msg.sender].amount, "Saldo insuficiente");
+        wallets[msg.sender].amount -= value;
+        (bool success, ) = msg.sender.call{value: value}("");
+        require(success, "Falha ao transferir fundos");
     }
 
     function createEvent(string memory eventType, uint256 odd) public {
