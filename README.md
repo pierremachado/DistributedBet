@@ -57,6 +57,16 @@ Essas propriedades são, portanto, fundamentais para a construção de um sistem
 
 ### 7. Blockchain
 
+### 8. Solidity
+
+Solidity é a linguagem de programação utilizada para a criação de contratos inteligentes para ambientes Ethereum. No projeto, seu uso se fez necessário para a aplicação no ambiente HardHat. Seu paradigma consiste na criação de contratos, com regras, permissões, manipulação de dados da aplicação, como dados financeiros (de acordo com a criptomoeda Ether), criação de funções e eventos.
+
+As funções em um contrato Solidity podem ser usadas para modularização do projeto, mas seu foco principal está na aplicação das funções públicas, que atuam como "endpoints" de uma API. A partir das funções públicas, são enviados dados e mensagens que manipulam a lógica de negócio do contrato, ou retornados valores e sinais, a partir de retornos ou eventos, para os usuários.
+
+Os eventos servem para retornar sinais para os usuários, de acordo com acontecimentos dentro do contrato. Se tornam fundamentais para a publicação de informações necessárias aos clientes, trazendo transparência para a aplicação. Seu uso é também fundamental para notificar softwares externos, bem como interfaces gráficas ou API's externas, sobre alterações nos dados do contrato.
+
+As funções precisam possuir regras de acesso, visando privacidade e segurança de dados. Para isso são inseridos modifiers no contrato Solidity. Os modifiers são simples validações de erro, que impedem a execução do programa de acordo com o não cumprimento de regras de acesso (permissões de usuário, valores mínimos, etc.).
+
 ## Metodologia
 
 O “back-end” do produto foi majoritariamente escrito em cima de contratos inteligentes para uma blockchain Ethereum, que garante a proposta de completa descentralização do sistema. O ambiente de desenvolvimento HardHat foi utilizado para modelagem e testagem dos contratos.
