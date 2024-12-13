@@ -11,9 +11,9 @@ contract BetContract {
 
     struct Event {
         address creator;
-        uint256 odd;
         string eventType;
         uint8 result;
+        uint256 odd;
         bool isClosed;
         uint256 amount;
         Bet[] participants;
@@ -86,7 +86,8 @@ contract BetContract {
         return address(this).balance;
     }
 
-    function createEvent(string memory eventType, uint256 odd) public {
+    function createEvent(string memory eventType, uint256 odd) public
+    onlyRegistered() {
         Event memory newEvent;
         newEvent.creator = msg.sender;
         newEvent.odd = odd;
