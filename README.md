@@ -36,6 +36,29 @@ Portanto, para que um sistema distribuído que implemente bancos de dados garant
 
 ### 2. Assunções de modelagem do sistema
 
+Kleppmann destaca que conexões de rede não são confiáveis, estando sujeitas a atrasos inesperados ou até à perda completa de pacotes (2020). Dessa forma, um sistema distribuído deve considerar essas limitações e estar preparado para lidar com asserções de rede. Também podem ocorrer variações no comportamento dos "nós" e condições temporais imprevisíveis.
+
+São as asserções de comportamentos de redes:
+- Links confiáveis (reliable links): as mensagens são entregues se e somente se forem enviadas. Além disso, assumem que todas as mensagens enviadas serão recebidas, mas que também podem ser reordenadas.
+- Links de perda justa (fair-loss links): mensagens podem ser atrasadas, recebidas na ordem errada ou até mesmo não serem recebidas de forma alguma. Se o envio de uma mensagem for tentado mais de uma vez, eventualmente a mensagem chegará.
+- Links arbitrários (adversário ativo): um adversário externo pode interferir nas mensagens. Alguns exemplos incluem modificação de mensagens, espionagem ou spoofing, ato de fingir ser alguém ou algo confiável (KASPERSKY, s.d.)
+
+Assumir que um sistema distribuído de apostas opera com links confiáveis não é uma abordagem segura. A rede está sujeita a instabilidades, e os "nós" podem estar distribuídos geograficamente. Nessas condições, a perda de comunicação com outros "nós" impede que um "nó" isolado realize operações de forma independente. O sistema deve estar projetado para funcionar sem o “nó” instável. Além disso, também é assumido que adversários ativos podem interferir no sistema, configurando uma falha bizantina (KLEPPMANN, 2020). Uma falha bizantina é caracterizada “quando um ou mais componentes [do sistema] falham e não há informações precisas sobre se um componente falhou ou se as informações do sistema estão corretas” (MALDONADO, 2019). 
+
+São assunções de funcionamento dos “nós”:
+- Crash-stop: assim que um “nó” falha, ele para de ser executado para sempre.
+- Crash-recovery: um “nó” pode falhar a qualquer momento, interrompendo a sua execução e perdendo todo o seu estado de memória interno atual. Um “nó” defeituoso pode ter a sua execução retomada a qualquer momento.
+- Bizantino (falha arbitrária): um “nó” é defeituoso se ele desvia do algoritmo. Nós defeituosos podem ter comportamentos indesejados, desde a terem a execução interrompida, como um comportamento indesejado.
+
+Dadas as assunções sobre os funcionamentos dos “nós” acima, a alternativa mais segura seria assumir o modelo de falha arbitrária (comportamento bizantino). Ter o funcionamento do sistema invadido e comprometido poderia acarretar em grandes perdas para as partes atuantes do sistema. Em decorrência disso, torna-se essencial implementar medidas de proteção robustas.
+
+Por fim, são assunções do modelo de comportamento temporal:
+- Síncrono: a latência de mensagens não ultrapassa um limite superior conhecido. Os “nós” operam a uma velocidade uniforme e previsível.
+- Parcialmente síncrono: os “nós” geralmente operam a uma velocidade previsível, mas podem agir de forma assíncrona em períodos de tempo finitos. Pode ocorrer em forma de atraso de mensagens ou demora de execução.
+- Assíncrono: não se sabe ao certo quanto tempo uma mensagem levará para ser recebida, nem quando um “nó” terá a sua execução pausada. Isso é válido para todo “nó” do sistema.
+
+Kleppmann argumenta que assumir um sistema como síncrono é irrealista (2020). Algoritmos projetados com essa premissa podem sofrer falhas graves caso o sistema opere de forma assíncrona. Por outro lado, certos problemas são insolúveis sob a suposição de um sistema totalmente assíncrono. Assim, a abordagem mais segura é considerar o modelo parcialmente síncrono. Esse modelo representa um equilíbrio entre as duas assunções, permitindo a modelagem de um sistema distribuído que continue funcionando mesmo diante de aumento na latência, pertubações na rede ou interrupções temporárias na execução de “nós”.
+
 ### 3. Propriedades ACID
 
 Em um sistema distribuído, como o de apostas, as transações desempenham um papel essencial na manutenção da integridade dos dados. De acordo com a empresa de dados Databricks, uma transação em um banco de dados é "qualquer operação tratada como uma unidade de trabalho. As transações são totalmente executadas ou não executadas, mantendo o sistema de armazenamento em um estado consistente" (s.d.). Essas características eliminam a possibilidade de estados intermediários. Em um sistema de apostas distribuídas, por exemplo, se um usuário decide apostar uma quantia, a operação será concluída apenas se houver saldo suficiente. Não há espaço para um estado intermediário em que a aposta simultaneamente exista e não exista.
