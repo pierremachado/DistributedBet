@@ -19,6 +19,12 @@ contract BetContract {
         Bet[] participants;
     }
 
+    struct Account {
+        bool created;
+        uint256 amount;
+    }
+
+    mapping(address => Account) wallets;
     Event[] allEvents;
 
     event EventCreated(uint256 indexed id, string eventType, uint256 odd);
@@ -49,29 +55,26 @@ contract BetContract {
         _;
     }
 
-
-    mapping(address => bool) public isRegistered;
-
     modifier onlyRegistered() {
-        require(isRegistered[msg.sender], "Usuario nao registrado");
+        require(wallets[msg.sender].created, "Usuario nao registrado");
         _;
     }
 
     function register() public {
-        require(!isRegistered[msg.sender], "Usuario ja existe");
-        isRegistered[msg.sender] = true;
-
+        require(!wallets[msg.sender].created, "Usuario ja existe");
+        wallets[msg.sender] = Account({created: true, amount: 0});
         emit UserRegistered(msg.sender);
     }
 
     function deposit() public payable onlyRegistered {
         require(msg.value > 0, "Valor deve ser maior que 0");
+        wallets[msg.sender].amount += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
 
     function withdraw(uint256 amount) public onlyRegistered {
         require(
-            address(this).balance >= amount,
+            wallets[msg.sender].amount >= amount,
             "Saldo do contrato insuficiente"
         );
         require(amount > 0, "Valor deve ser maior que 0");
@@ -83,11 +86,13 @@ contract BetContract {
     }
 
     function getBalance() public view onlyRegistered returns (uint256) {
-        return address(this).balance;
+        return wallets[msg.sender].amount;
     }
 
-    function createEvent(string memory eventType, uint256 odd) public
-    onlyRegistered() {
+    function createEvent(
+        string memory eventType,
+        uint256 odd
+    ) public onlyRegistered {
         Event memory newEvent;
         newEvent.creator = msg.sender;
         newEvent.odd = odd;
@@ -100,19 +105,14 @@ contract BetContract {
         uint256 eventId,
         uint8 prediction,
         uint256 betValue
-    )
-        public
-        creatorCanNotBet(eventId)
-        betIsActive(eventId)
-        onlyRegistered()
-    {
+    ) public creatorCanNotBet(eventId) betIsActive(eventId) onlyRegistered {
         require(betValue > 0, "Valor nao permitido");
         require(
-            address(this).balance >= betValue,
+            wallets[msg.sender].amount >= betValue,
             "Saldo insuficiente no contrato"
         );
 
-        address(this).call{value: betValue}("");
+        wallets[msg.sender].amount -= betValue;
 
         allEvents[eventId].amount += betValue;
 
@@ -129,12 +129,7 @@ contract BetContract {
     function closeEventAndPayWinners(
         uint256 eventId,
         uint8 result
-    )
-        public
-        onlyCreator(eventId)
-        onlyRegistered()
-        betIsActive(eventId)
-    {
+    ) public onlyCreator(eventId) onlyRegistered betIsActive(eventId) {
         for (uint i = 0; i < allEvents[eventId].participants.length; i++) {
             Bet memory b = allEvents[eventId].participants[i];
             if (b.bet == result) {
@@ -144,15 +139,12 @@ contract BetContract {
                     "Insufficient funds to pay winners"
                 );
                 allEvents[eventId].amount -= payout;
-                (bool successPayWinners, ) = b.gambler.call{value: payout}("");
-                require(successPayWinners, "Falha ao pagar ganhadores");
+                wallets[b.gambler].amount += payout;
             }
         }
         allEvents[eventId].isClosed = true;
-        (bool success, ) = allEvents[eventId].creator.call{value: allEvents[eventId].amount}(
-            ""
-        );
-        require(success, "Falha ao transferir fundos restantes para o criador");
+        wallets[allEvents[eventId].creator].amount += allEvents[eventId].amount;
+
         emit BetClosed(eventId, result);
     }
 
