@@ -98,39 +98,47 @@ O “back-end” do produto foi majoritariamente escrito em cima de contratos in
 
 O contrato foi modelado sobre três estruturas: Account, Event e Bet. A estrutura Account armazena valores da moeda virtual a ser apostada nos eventos, que será armazenada nas carteiras virtuais da aplicação. Para esse protótipo, não foi priorizado criar um câmbio entre a criptomoeda Ether e a moeda virtual da aplicação. Ou seja, foi mantido um câmbio de um para um (1 Ether = 1 moeda virtual da aplicação). Seguem os atributos de Account:
 
-- isActive: confirma se a carteira foi registrada na aplicação;
-- amount: montante da carteira do usuário.
+| **Estrutura** | **Atributo**      | **Descrição**                                                 |
+|----------------|-------------------|-------------------------------------------------------------|
+| Account        | isActive          | Confirma se a carteira foi registrada na aplicação.         |
+|                | amount            | Montante da carteira do usuário.                           |
 
 O Event guarda informações de um dado evento criado, que são:
 
-- creator: id do criador do evento;
-- eventType: descrição;
-- result: resultados possíveis (que os clientes irão apostar);
-- isClosed: dita encerramento ou não de aposta;
-- odds: odds respectivas a cada possibilidade;
-- amount: montante adquirido das apostas dos clientes;
-- participants: todas apostas feitas.
+| **Estrutura** | **Atributo**      | **Descrição**                                                 |
+|----------------|-------------------|-------------------------------------------------------------|
+| Event          | creator           | ID do criador do evento.                                    |
+|                | eventType         | Descrição do evento.                                        |
+|                | result            | Resultados possíveis (que os clientes irão apostar).        |
+|                | isClosed          | Indica se a aposta foi encerrada ou não.                    |
+|                | odds              | Odds respectivas a cada possibilidade.                     |
+|                | amount            | Montante adquirido das apostas dos clientes.               |
+|                | participants      | Todas as apostas feitas.                                   |
 
 Os participantes são descritos pela estrutura Bet, com os valores:
-gambler: id do apostador;
-- bet: predição do usuário (qual possibilidade ele acredita ser a que ocorrerá);
-- betValue: valor a ser apostado;
-- currentOdd: odd calculada para o momento que o usuário apostou.
+| **Estrutura** | **Atributo**      | **Descrição**                                                 |
+|----------------|-------------------|-------------------------------------------------------------|
+| Bet            | gambler           | ID do apostador.                                            |
+|                | bet               | Predição do usuário (qual possibilidade ele acredita ser a que ocorrerá). |
+|                | betValue          | Valor a ser apostado.                                       |
+|                | currentOdd        | Odd calculada no momento em que o usuário apostou.          |
 
 ### 2. Funções
 
 O contrato desenvolvido, a ser descrito nesse tópico, visou atender os requisitos de gerenciamento da carteira dos clientes, usando para câmbio a criptomoeda Ether, do Ethereum. Outros requisitos a serem atendidos são a consulta, criação, manutenção e inscrição em apostas. Seguem as funções desenvolvidas:
 
-- register() : adiciona cliente a lista de usuários registrados no sistema e valida erros do possível registro de um usuário já cadastrado;
-- deposit() : interage com a carteira do usuário, transferindo um valor virtual para sua carteira na aplicação. Esse valor virtual será convertido na moeda Ether para momentos de saque;
-- withdraw(): interage com a carteira do usuário, convertendo o valor virtual a ser sacado em Ether;
-- getBalance(): retorna o valor total armazenado na carteira do usuário;
-- createEvent(): cria um evento para que os demais usuários apostem. Recebe a descrição do evento e as odds para os possíveis resultados;
-- bet(): realiza a inscrição de uma aposta em um dado evento, a partir do seu id, a predição do usuário em qual resultado apostar, e a quantia apostada na predição;
-- closeEventAndPayWinners(): função para um usuário encerrar uma aposta já inserindo o resultado final. Posteriormente, os clientes campeões serão pagos e o criador da aposta será recompensado com a porcentagem restante do montante adquirido pela aposta.
-- changeOdd(): função para acessar um evento pelo seu id e alterar sua odd. Útil para o criador do evento realizar operações de odds dinâmicas em apostas em tempo real.
-- listCreatorEvents(): lista eventos criados pelo sender da mensagem;
-- listAllEvents(): lista todos eventos cadastrados.
+| **Função**                    | **Descrição**                                                                                           |
+|-------------------------------|---------------------------------------------------------------------------------------------------------|
+| register()                    | Adiciona cliente à lista de usuários registrados no sistema e valida erros de possível registro duplicado. |
+| deposit()                     | Interage com a carteira do usuário, transferindo um valor virtual para sua carteira na aplicação. Esse valor será convertido na moeda Ether para momentos de saque. |
+| withdraw()                    | Interage com a carteira do usuário, convertendo o valor virtual a ser sacado em Ether.                   |
+| getBalance()                  | Retorna o valor total armazenado na carteira do usuário.                                                |
+| createEvent()                 | Cria um evento para que os demais usuários apostem. Recebe a descrição do evento e as odds para os possíveis resultados. |
+| bet()                         | Realiza a inscrição de uma aposta em um dado evento, a partir do seu id, a predição do usuário e a quantia apostada na predição. |
+| closeEventAndPayWinners()     | Função para encerrar uma aposta, inserir o resultado final e pagar os vencedores, recompensando o criador com a porcentagem restante do montante adquirido pela aposta. |
+| changeOdd()                   | Acessa um evento pelo seu id e altera a odd, útil para o criador do evento realizar operações de odds dinâmicas em apostas em tempo real. |
+| listCreatorEvents()           | Lista os eventos criados pelo remetente da mensagem.                                                   |
+| listAllEvents()               | Lista todos os eventos cadastrados.                                                                    |
 
 O sistema valida erros, criando permissões personalizadas para certas funções, a partir de “modifiers” Solidity. Funções que alteram um dado evento criado só podem ser acessadas pelo criador do evento. Praticamente todas as funções só podem ser acessadas por usuários registrados. Usuários só podem apostar em eventos ativos. Criadores de eventos não podem apostar nos próprios eventos, por fins de segurança.
 
@@ -138,12 +146,14 @@ O sistema valida erros, criando permissões personalizadas para certas funções
 
 Foram criados events Solidity - estes não se referem às instâncias da estrutura Event criada, mas sim aos events nativos do Solidity - para notificar aos usuários sobre atualizações na blockchain, reforçando a transparência e segurança do projeto, como foi requisitado à equipe. Seguem os events:
 
-- EventCreated: anuncia aos usuários a criação de novo evento para apostas;
-- BetClosed: anuncia encerramento de evento aos clientes;
-- UserRegistered: anuncia a inserção de novo usuário no sistema;
-- Deposit: anuncia um depósito na carteira;
-- Withdrawal: anuncia saque na carteira;
-- OddChange: anuncia alteração em Odd de uma aposta específica, o que é importante para a atualização dinâmica para interfaces que apresentem os dados dos eventos.
+| **Evento**            | **Descrição**                                                                                           |
+|-----------------------|---------------------------------------------------------------------------------------------------------|
+| EventCreated          | Anuncia aos usuários a criação de novo evento para apostas.                                              |
+| BetClosed             | Anuncia o encerramento de evento aos clientes.                                                           |
+| UserRegistered        | Anuncia a inserção de novo usuário no sistema.                                                           |
+| Deposit               | Anuncia um depósito na carteira.                                                                         |
+| Withdrawal            | Anuncia saque na carteira.                                                                               |
+| OddChange             | Anuncia alteração na odd de uma aposta específica, importante para a atualização dinâmica nas interfaces que apresentam os dados dos eventos. |
 
 ## Resultados e discussões
 
