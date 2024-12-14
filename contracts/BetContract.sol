@@ -13,10 +13,8 @@ contract BetContract {
         address creator;
         string eventType;
         uint8 result;
-        uint256 odd;
         bool isClosed;
         uint256 amount;
-        Bet[] participants;
     }
 
     struct Account {
@@ -24,10 +22,16 @@ contract BetContract {
         uint256 amount;
     }
 
+    struct Odd {
+        uint8 prediction;
+        uint256 odd;
+    }
+    mapping(uint256 => mapping (uint8 => uint256)) odds;
+    mapping(uint256 => Bet[]) eventParticipants;
     mapping(address => Account) wallets;
     Event[] allEvents;
 
-    event EventCreated(uint256 indexed id, string eventType, uint256 odd);
+    event EventCreated(uint256 indexed id, string eventType, Odd[] odds);
     event BetClosed(uint256 indexed id, uint8 result);
     event UserRegistered(address indexed client);
     event Deposit(address indexed user, uint256 amount);
@@ -91,14 +95,16 @@ contract BetContract {
 
     function createEvent(
         string memory eventType,
-        uint256 odd
+        Odd[] memory eventOdds
     ) public onlyRegistered {
         Event memory newEvent;
         newEvent.creator = msg.sender;
-        newEvent.odd = odd;
         newEvent.eventType = eventType;
         allEvents.push(newEvent);
-        emit EventCreated(allEvents.length - 1, eventType, odd);
+        emit EventCreated(allEvents.length - 1, eventType, eventOdds);
+        for (uint i = 0; i < eventOdds.length; i++) {
+            odds[allEvents.length-1][eventOdds[i].prediction] = eventOdds[i].odd;
+        }
     }
 
     function bet(
@@ -116,12 +122,12 @@ contract BetContract {
 
         allEvents[eventId].amount += betValue;
 
-        allEvents[eventId].participants.push(
+        eventParticipants[eventId].push(
             Bet({
                 gambler: msg.sender,
                 bet: prediction,
                 betValue: betValue,
-                currentOdd: allEvents[eventId].odd
+                currentOdd: odds[eventId][prediction]
             })
         );
     }
@@ -130,8 +136,9 @@ contract BetContract {
         uint256 eventId,
         uint8 result
     ) public onlyCreator(eventId) onlyRegistered betIsActive(eventId) {
-        for (uint i = 0; i < allEvents[eventId].participants.length; i++) {
-            Bet memory b = allEvents[eventId].participants[i];
+        Bet[] storage participants = eventParticipants[eventId];
+        for (uint i = 0; i < participants.length; i++) {
+            Bet storage b = participants[i];
             if (b.bet == result) {
                 uint256 payout = b.currentOdd * b.betValue;
                 require(
@@ -150,9 +157,10 @@ contract BetContract {
 
     function changeOdd(
         uint256 eventId,
+        uint8 prediction,
         uint256 newOdd
     ) public onlyCreator(eventId) {
-        allEvents[eventId].odd = newOdd;
+        odds[eventId][prediction] = newOdd;
         emit OddChange(eventId, newOdd);
     }
 }
