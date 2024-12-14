@@ -74,6 +74,19 @@ Essas propriedades são, portanto, fundamentais para a construção de um sistem
 
 ### 4. Teorema CAP
 
+O teorema CAP delineia três pilares fundamentais para o desenvolvimento de sistemas distribuídos. De acordo com a IBM (s.d.), esses pilares são:
+
+- Consistência (Consistency): Todos os "nós" do sistema apresentam os mesmos dados ao mesmo tempo, garantindo que qualquer leitura retorne a versão mais recente escrita.
+- Disponibilidade (Availability): O sistema permanece operacional e responde a todas as requisições, mesmo que algumas falhas ocorram.
+- Tolerância à partição (Partition Tolerance): O sistema continua a operar mesmo que a comunicação entre "nós" seja interrompida.
+	
+O teorema CAP demonstra que sistemas distribuídos enfrentam limitações inerentes, sendo impossível alcançar simultaneamente consistência, disponibilidade e tolerância à partição. Tanenbaum explica:
+
+> *“Uma forma de entender o teorema é pensar que dois processos são incapazes de se comunicarem por causa de uma rede faltosa. Permitir que um processo aceite atualizações leva a inconsistências, então só podemos ter as propriedades {C, P}. Se a ilusão de consistência deve ser providenciada enquanto os dois processos não podem se comunicar, então um dos processos precisará fingir que está indisponível, implicando haver apenas {A, P}. Entretanto, apenas se os dois processos podem se comunicar, é possível manter tanto consistência quanto alta disponibilidade, significando que temos apenas {C, A}, mas não mais a propriedade P.”*  
+> *(TANENBAUM, 2007, tradução nossa)*
+
+No caso de um sistema distribuído de apostas, priorizar a tolerância à partição é essencial, devido à alta probabilidade de falhas na comunicação entre os “nós”. Entre consistência e disponibilidade, a consistência deve ser priorizada, pois assegurar que as transações e os dados sejam precisos e confiáveis é fundamental para preservar a integridade do sistema. Embora a disponibilidade possa ser afetada em situações de falha, é preferível que o sistema pause temporariamente a aceitação de novas operações do que comprometer sua consistência.
+
 ### 5. Consenso
 
 ### 6. Ledger distribuído
@@ -82,7 +95,7 @@ Essas propriedades são, portanto, fundamentais para a construção de um sistem
 
 ### 8. Solidity
 
-Solidity é a linguagem de programação utilizada para a criação de contratos inteligentes para ambientes Ethereum. No projeto, seu uso se fez necessário para a aplicação no ambiente HardHat. Seu paradigma consiste na criação de contratos, com regras, permissões, manipulação de dados da aplicação, como dados financeiros (de acordo com a criptomoeda Ether), criação de funções e eventos.
+Solidity é a linguagem de programação utilizada para criar contratos inteligentes na blockchain Ethereum. No projeto, a escolha de Solidity foi essencial para a implementação no ambiente HardHat. O paradigma da linguagem baseia-se na definição de contratos que estabelecem regras e permissões, além de possibilitar a manipulação de dados da aplicação, como os dados financeiros (utilizando a criptomoeda Ether). Solidity também permite a criação de funções e eventos, essenciais para a interatividade e o controle do fluxo de operações no sistema.
 
 As funções em um contrato Solidity podem ser usadas para modularização do projeto, mas seu foco principal está na aplicação das funções públicas, que atuam como "endpoints" de uma API. A partir das funções públicas, são enviados dados e mensagens que manipulam a lógica de negócio do contrato, ou retornados valores e sinais, a partir de retornos ou eventos, para os usuários.
 
@@ -96,7 +109,7 @@ O “back-end” do produto foi majoritariamente escrito em cima de contratos in
 
 ### 1. Estruturação
 
-O contrato foi modelado sobre três estruturas: Account, Event e Bet. A estrutura Account armazena valores da moeda virtual a ser apostada nos eventos, que será armazenada nas carteiras virtuais da aplicação. Para esse protótipo, não foi priorizado criar um câmbio entre a criptomoeda Ether e a moeda virtual da aplicação. Ou seja, foi mantido um câmbio de um para um (1 Ether = 1 moeda virtual da aplicação). Seguem os atributos de Account:
+O contrato foi modelado utilizando três estruturas principais: Account, Event e Bet. A estrutura Account armazena os valores da moeda virtual a ser apostada nos eventos, sendo esses valores guardados nas carteiras virtuais da aplicação. Para este protótipo, não foi implementado um câmbio entre a criptomoeda Ether e a moeda virtual da aplicação. Dessa forma, adotou-se uma taxa de câmbio de 1 para 1 (1 Ether = 1 moeda virtual da aplicação). Abaixo, estão os atributos da estrutura Account:
 
 | **Estrutura** | **Atributo**      | **Descrição**                                                 |
 |----------------|-------------------|-------------------------------------------------------------|
