@@ -230,19 +230,19 @@ Espera-se que esta implementação sirva como base para estudos futuros, promove
 
 ## Referências
 
-https://www.youtube.com/playlist?list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB
+DATABRICKS. Transações ACID. (s.d.). Disponível em: https://www.databricks.com/br/glossary/acid-transactions.
 
-https://www.atlassian.com/br/microservices/microservices-architecture/distributed-architecture
+DOOLEY, Kevin. Designing Large-Scale LANS. 2001.
 
-TANENBAUM, Andrew. VAN STEEN, Maarten. Sistemas Distribuídos: princípios e paradigmas, 2ª edição. 2007.
+IBM. Propriedades ACID das transações. 2022. Disponível em: https://www.ibm.com/docs/pt-br/cics-tx/11.1?topic=processing-acid-properties-transactions.
 
-DOOLEY, Kevin. Designing Large-Scale LANS.
+KASPERSKY. O que é spoofing - Definição e explicação. (s.d.). Disponível em: https://www.kaspersky.com.br/resource-center/definitions/spoofing.
 
-https://www.databricks.com/br/glossary/acid-transactions
+KLEPPMANN, Martin. Distributed Systems lecture series. YouTube. Disponível em: https://www.youtube.com/playlist?list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB.
 
-https://www.ibm.com/docs/pt-br/cics-tx/11.1?topic=processing-acid-properties-transactions
+MALDONADO, José. O que é uma falha bizantina?. Disponível em: https://academy.bit2me.com/pt/que-es-falla-bizantina/.
 
-https://www.kaspersky.com.br/resource-center/definitions/spoofing
+TANENBAUM, Andrew.; VAN STEEN, Maarten. Sistemas Distribuídos: princípios e paradigmas, 2ª edição. 2007.
 
-https://academy.bit2me.com/pt/que-es-falla-bizantina/
+ZETTLER, Kev. O que é um sistema distribuído? Uma visão geral dos sistemas distribuídos e das arquiteturas de microsserviços. Disponível em: https://www.atlassian.com/br/microservices/microservices-architecture/distributed-architecture.
 
