@@ -76,24 +76,78 @@ Essas propriedades são, portanto, fundamentais para a construção de um sistem
 
 O teorema CAP delineia três pilares fundamentais para o desenvolvimento de sistemas distribuídos. De acordo com a IBM (s.d.), esses pilares são:
 
-- Consistência (Consistency): Todos os "nós" do sistema apresentam os mesmos dados ao mesmo tempo, garantindo que qualquer leitura retorne a versão mais recente escrita.
-- Disponibilidade (Availability): O sistema permanece operacional e responde a todas as requisições, mesmo que algumas falhas ocorram.
-- Tolerância à partição (Partition Tolerance): O sistema continua a operar mesmo que a comunicação entre "nós" seja interrompida.
+- Consistência (Consistency): todos os "nós" do sistema apresentam os mesmos dados ao mesmo tempo, garantindo que qualquer leitura retorne a versão mais recente escrita.
+- Disponibilidade (Availability): o sistema permanece operacional e responde a todas as requisições, mesmo que algumas falhas ocorram.
+- Tolerância à partição (Partition Tolerance): o sistema continua a operar mesmo que a comunicação entre "nós" seja interrompida.
 	
 O teorema CAP demonstra que sistemas distribuídos enfrentam limitações inerentes, sendo impossível alcançar simultaneamente consistência, disponibilidade e tolerância à partição. Tanenbaum explica:
 
-> *“Uma forma de entender o teorema é pensar que dois processos são incapazes de se comunicarem por causa de uma rede faltosa. Permitir que um processo aceite atualizações leva a inconsistências, então só podemos ter as propriedades {C, P}. Se a ilusão de consistência deve ser providenciada enquanto os dois processos não podem se comunicar, então um dos processos precisará fingir que está indisponível, implicando haver apenas {A, P}. Entretanto, apenas se os dois processos podem se comunicar, é possível manter tanto consistência quanto alta disponibilidade, significando que temos apenas {C, A}, mas não mais a propriedade P.”*  
+> *“Uma forma de entender o teorema é pensar que dois processos são incapazes de se comunicarem por causa de uma rede se comportando de forma anômala. Permitir que um processo aceite atualizações leva a inconsistências, então só podemos ter as propriedades {C, P}. Se a ilusão de consistência deve ser providenciada enquanto os dois processos não podem se comunicar, então um dos processos precisará fingir que está indisponível, implicando haver apenas {A, P}. Entretanto, apenas se os dois processos podem se comunicar, é possível manter tanto consistência quanto alta disponibilidade, significando que temos apenas {C, A}, mas não mais a propriedade P.”*  
 > *(TANENBAUM, 2007, tradução nossa)*
 
 No caso de um sistema distribuído de apostas, priorizar a tolerância à partição é essencial, devido à alta probabilidade de falhas na comunicação entre os “nós”. Entre consistência e disponibilidade, a consistência deve ser priorizada, pois assegurar que as transações e os dados sejam precisos e confiáveis é fundamental para preservar a integridade do sistema. Embora a disponibilidade possa ser afetada em situações de falha, é preferível que o sistema pause temporariamente a aceitação de novas operações do que comprometer sua consistência.
 
 ### 5. Consenso
 
+O consenso é uma das bases para o funcionamento de sistemas distribuídos. Ele garante que todos os nós participantes concordem com o estado atual da rede, mesmo em cenários de falhas ou comportamentos maliciosos. Em sistemas descentralizados, o consenso elimina a necessidade de uma autoridade central, assegurando que as transações sejam registradas de maneira confiável e uniforme.
+
+Os algoritmos de consenso mais utilizados incluem:
+
+- Prova de Trabalho (Proof of Work - PoW): consiste na resolução de cálculos matemáticos complexos para validar transações e criar novos blocos. É seguro, mas demanda alto consumo de energia.
+
+- Prova de Participação (Proof of Stake - PoS): seleciona validadores com base na quantidade de recursos bloqueados como garantia. É mais eficiente energeticamente que o PoW.
+
+- Byzantine Fault Tolerance (BFT): tolerante a até certo número de nós defeituosos ou maliciosos, garantindo integridade mesmo em redes com comportamentos adversos.
+
+Esses mecanismos são projetados para resolver problemas como o gasto duplo e assegurar a integridade das informações armazenadas. Eles são fundamentais para aplicações que requerem descentralização, como os sistemas baseados em blockchains.
+
 ### 6. Ledger distribuído
 
-### 7. Blockchain
+O ledger distribuído é um modelo de armazenamento que organiza registros de forma replicada em múltiplos nós de uma rede. Essa abordagem descentralizada garante que todos os participantes possuam uma cópia idêntica do histórico de transações, promovendo maior segurança e confiança no sistema.
 
-### 8. Solidity
+Os registros em um ledger distribuído são imutáveis, ou seja, uma vez adicionados, não podem ser alterados sem o consenso da rede. Essa característica torna o modelo ideal para auditorias e aplicações que exigem transparência.
+
+Os ledgers distribuídos trazem como principais benefícios:
+
+- Imutabilidade: impede alterações nos dados sem aprovação dos participantes.
+
+- Descentralização: reduz o risco de falhas sistêmicas ou manipulação.
+
+- Segurança: mesmo com falhas em alguns nós, os dados permanecem protegidos.
+
+A estrutura de ledger distribuído é frequentemente usada como base para tecnologias descentralizadas, incluindo blockchains, que levam essas vantagens a um nível superior de aplicação.
+
+### 7. Peer to Peer
+
+O modelo peer-to-peer (P2P) é uma arquitetura de rede em que cada nó pode atuar tanto como cliente quanto como servidor, eliminando a dependência de um ponto central. Nesse sistema, os nós se comunicam diretamente, compartilhando dados de forma descentralizada e colaborativa.
+
+Algumas vantagens do modelo P2P incluem:
+
+- Escalabilidade: a capacidade da rede cresce conforme mais nós participam.
+
+- Resiliência: a ausência de um ponto único de falha aumenta a robustez do sistema.
+
+- Eficiência: a latência é reduzida ao permitir trocas diretas entre os nós.
+
+Soluções baseadas em P2P são especialmente úteis em contextos onde a descentralização é essencial, como sistemas de registro distribuído e blockchains.
+
+### 8. Blockchain
+
+A blockchain é uma aplicação avançada de tecnologias descentralizadas, combinando ledger distribuído e modelo P2P para armazenar dados de forma segura e transparente. Nessa estrutura, os dados são organizados em blocos conectados sequencialmente, criando um registro permanente e auditável.
+
+Cada bloco contém:
+
+- Dados: informações da transação ou evento.
+
+- Hash: identificação única que garante a integridade do bloco.
+
+- Hash do bloco anterior: conexão que mantém a ordem e a segurança da cadeia.
+
+O funcionamento descentralizado e a verificação colaborativa dos nós tornam a blockchain uma solução confiável para diversas áreas, como finanças, saúde e logística. Além disso, o uso do modelo P2P permite maior escalabilidade e resiliência, eliminando intermediários e assegurando transparência.
+
+Casos de uso práticos incluem transferências financeiras, rastreamento de produtos em cadeias de suprimentos e compartilhamento seguro de dados sensíveis, como registros médicos.
+
+### 9. Solidity
 
 Solidity é a linguagem de programação utilizada para criar contratos inteligentes na blockchain Ethereum. No projeto, a escolha de Solidity foi essencial para a implementação no ambiente HardHat. O paradigma da linguagem baseia-se na definição de contratos que estabelecem regras e permissões, além de possibilitar a manipulação de dados da aplicação, como os dados financeiros (utilizando a criptomoeda Ether). Solidity também permite a criação de funções e eventos, essenciais para a interatividade e o controle do fluxo de operações no sistema.
 
@@ -168,9 +222,11 @@ Foram criados events Solidity - estes não se referem às instâncias da estrutu
 | Withdrawal            | Anuncia saque na carteira.                                                                               |
 | OddChange             | Anuncia alteração na odd de uma aposta específica, importante para a atualização dinâmica nas interfaces que apresentam os dados dos eventos. |
 
-## Resultados e discussões
-
 ## Conclusão
+
+Conclui-se que o sistema descrito, fundamentado em conceitos de consenso, armazenamento distribuído, modelo peer-to-peer e blockchain, apresenta características sólidas e funcionais para aplicações descentralizadas. O desenvolvimento exigiu a compreensão de técnicas relacionadas à segurança de dados, organização em redes distribuídas e tolerância a falhas, destacando a relevância de integrar diferentes abordagens para assegurar eficiência e confiabilidade.
+
+Espera-se que esta implementação sirva como base para estudos futuros, promovendo o avanço contínuo de soluções tecnológicas descentralizadas e de sistemas distribuídos de alta eficiência.
 
 ## Referências
 
@@ -185,3 +241,8 @@ DOOLEY, Kevin. Designing Large-Scale LANS.
 https://www.databricks.com/br/glossary/acid-transactions
 
 https://www.ibm.com/docs/pt-br/cics-tx/11.1?topic=processing-acid-properties-transactions
+
+https://www.kaspersky.com.br/resource-center/definitions/spoofing
+
+https://academy.bit2me.com/pt/que-es-falla-bizantina/
+
