@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 
 interface SquareRaceProps {
   setOdds: React.Dispatch<React.SetStateAction<number[]>>
-  quadrados: Quadrado[] 
+  quadrados: Quadrado[]
   setQuadrados: React.Dispatch<React.SetStateAction<Quadrado[]>>
   setIsClosedForBets: React.Dispatch<React.SetStateAction<boolean>>
+  setCampeao: React.Dispatch<React.SetStateAction<Quadrado | undefined>>
 }
 
-function SquareRace({setOdds, quadrados, setQuadrados, setIsClosedForBets}: SquareRaceProps) {
+function SquareRace({ setOdds, quadrados, setQuadrados, setIsClosedForBets, setCampeao }: SquareRaceProps) {
   const [, setMessage] = useState("");
+  const [ws, setWs] = useState<WebSocket | null>(null);
 
   const LARGURA_QUADRADOS = 30;
 
@@ -28,6 +30,7 @@ function SquareRace({setOdds, quadrados, setQuadrados, setIsClosedForBets}: Squa
 
   useEffect(() => {
     const socket = new WebSocket("ws://localhost:8765");
+    setWs(socket);
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -36,6 +39,7 @@ function SquareRace({setOdds, quadrados, setQuadrados, setIsClosedForBets}: Squa
       setOdds(data.odds)
       setIsClosedForBets(data.closedForBets)
       setMessage(data.message);
+      setCampeao(data.winner);
     };
 
     socket.onerror = (error) => {
@@ -47,21 +51,34 @@ function SquareRace({setOdds, quadrados, setQuadrados, setIsClosedForBets}: Squa
     };
   }, []);
 
+  const start = () => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send("start");
+      setMessage(""); // Limpar o campo de entrada após o envio
+    } else {
+      console.error("WebSocket não está conectado.");
+    }
+  };
+
+
   return (
-    <div style={styles.container}>
-      {quadrados.map((quadrado) => (
-        <div
-          key={quadrado.id}
-          style={{
-            ...styles.quadrado,
-            top: `${LARGURA_QUADRADOS + quadrado.id * 60}px`,
-            transform: `translateX(${quadrado.posX}px)`,
-            opacity: quadrado.ativo ? 1 : 0.5,
-            backgroundColor: quadrado.nitroAtivo ? "#e74c3c" : quadrado.cor,
-          }}
-        />
-      ))}
-    </div>
+    <>
+      <button onClick={start}>iniciar</button>
+      <div style={styles.container}>
+        {quadrados.map((quadrado) => (
+          <div
+            key={quadrado.id}
+            style={{
+              ...styles.quadrado,
+              top: `${LARGURA_QUADRADOS + quadrado.id * 60}px`,
+              transform: `translateX(${quadrado.posX}px)`,
+              opacity: quadrado.ativo ? 1 : 0.5,
+              backgroundColor: quadrado.nitroAtivo ? "#e74c3c" : quadrado.cor,
+            }}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 

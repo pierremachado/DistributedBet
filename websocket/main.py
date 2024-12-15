@@ -5,21 +5,30 @@ import random
 
 LARGURA_TELA = 1300
 LARGURA_QUADRADOS = 30
-DELAY = 32
+DELAY = 60
 QUANTIDADE_QUADRADOS = 3
+fechado = False
 cores = ["#3498db", "#059669", "#b45309", "#3b0764", "#facc15"]
 probabilidades = [100/QUANTIDADE_QUADRADOS] * QUANTIDADE_QUADRADOS
 
 def calcularProbabilidades():
     global probabilidades
+    # Calcular o tempo restante para cada cavalo
     tempos_restantes = [
-        (LARGURA_TELA - quadrado["posX"])/quadrado["velocidade"] 
-        for quadrado in quadrados]
-    total_tempo = sum(tempos_restantes)
-    novasProbabilidades = [(total_tempo-tempo)/total_tempo for tempo in tempos_restantes]
-    total_probabilidades = sum(novasProbabilidades) * 105/100
-    probabilidades = [prob/total_probabilidades for prob in novasProbabilidades]
+        (LARGURA_TELA - quadrado["posX"]) / quadrado["velocidade"] 
+        for quadrado in quadrados
+    ]
     
+    # Determinar odds ajustadas com base no inverso do tempo restante
+    novasProbabilidades = [
+        1 / (tempo ** 3) if tempo > 0 else 0  # Menor tempo -> maior probabilidade
+        for tempo in tempos_restantes
+    ]
+    
+    # Normalizar as probabilidades para que somem 1 (ou 100%)
+    total_probabilidades = sum(novasProbabilidades)
+    probabilidades = [prob / total_probabilidades for prob in novasProbabilidades]
+
 
 def inicializar_quadrados():
     return [
@@ -35,23 +44,28 @@ def inicializar_quadrados():
         for index in range(QUANTIDADE_QUADRADOS)
     ]
 
-quadrados = inicializar_quadrados()
 
 async def move_squares(websocket, path):
-
-    while True:
-        mover_quadrados()
-        await websocket.send(json.dumps(
-            {"quadrados": quadrados, "odds": 
-            [round(1/prob, 2) for prob in probabilidades],
-            "closedForBets": any(quadrado["posX"] > LARGURA_TELA/2 for quadrado in quadrados)}
-            ))
-        existe_ativo_false = any(quadrado["ativo"] == False for quadrado in quadrados)
-        if existe_ativo_false: break
-        
-        if random.random() < 0.01:  # 1% de chance a cada loop de chamar o nitro
-            ativar_nitro()
-        await asyncio.sleep(0.032)
+    global quadrados, campeao
+    async for message in websocket:
+        if message == "start":                
+            quadrados = inicializar_quadrados()
+            while True:
+                mover_quadrados()
+                existe_ativo_false = list(filter(lambda quadrado: quadrado["ativo"] == False, quadrados))
+                await websocket.send(json.dumps(
+                    {"quadrados": quadrados, "odds": 
+                    [round(1/prob, 2) for prob in probabilidades],
+                    "closedForBets": fechado,
+                    "winner": existe_ativo_false[0] if existe_ativo_false else None
+                    }
+                    ))
+                if existe_ativo_false: 
+                    break
+                
+                if random.random() < 0.01:  # 1% de chance a cada loop de chamar o nitro
+                    ativar_nitro()
+                await asyncio.sleep(DELAY/1000)
 
 
 def ativar_nitro():
@@ -87,7 +101,7 @@ def mover_quadrados():
             continue
 
         if quadrado["nitroAtivo"]:
-            tempo_restante = quadrado["tempoNitro"] - 32
+            tempo_restante = quadrado["tempoNitro"] - 16
             if tempo_restante <= 0:
                 quadrado.update({
                     "nitroAtivo": False,
@@ -102,8 +116,10 @@ def mover_quadrados():
             quadrado.update({
                 "posX": nova_posX,
             })
-            
-    calcularProbabilidades()
+    global fechado
+    fechado = any(quadrado["posX"] > LARGURA_TELA/2 for quadrado in quadrados)
+    if not(fechado):
+        calcularProbabilidades()
 
 async def main():
     async with websockets.serve(move_squares, "localhost", 8765):
