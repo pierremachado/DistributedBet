@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import json
 import random
+import time 
+import threading
 
 LARGURA_TELA = 1300
 LARGURA_QUADRADOS = 30
@@ -29,6 +31,11 @@ def calcularProbabilidades():
     total_probabilidades = sum(novasProbabilidades)
     probabilidades = [prob / total_probabilidades for prob in novasProbabilidades]
 
+def rodarEmThread():
+    while True:
+        if not(fechado):
+            calcularProbabilidades()
+        time.sleep(1)
 
 def inicializar_quadrados():
     return [
@@ -50,6 +57,8 @@ async def move_squares(websocket, path):
     async for message in websocket:
         if message == "start":                
             quadrados = inicializar_quadrados()
+            thread = threading.Thread(target=rodarEmThread, daemon=True)
+            thread.start()
             while True:
                 mover_quadrados()
                 existe_ativo_false = list(filter(lambda quadrado: quadrado["ativo"] == False, quadrados))
@@ -118,8 +127,6 @@ def mover_quadrados():
             })
     global fechado
     fechado = any(quadrado["posX"] > LARGURA_TELA/2 for quadrado in quadrados)
-    if not(fechado):
-        calcularProbabilidades()
 
 async def main():
     async with websockets.serve(move_squares, "localhost", 8765):
