@@ -1,30 +1,14 @@
 import { useState } from "react";
 import "./App.css";
-import Horse from "./components/Horse";
+import SquareRace from "./components/SquareRace"
 function App() {
   const [start, setStart] = useState(false);
   const [probabilidades, setProbabilidades] = useState([]);
 
-
-  const styles = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-    backgroundColor: "#f0f0f0",
-    position: "relative",
-    overflow: "hidden",
-    backgroundColor: "green",
-  };
-  // console.log(probabilidades)
-
   return (
     <>
       <button onClick={() => setStart(true)}>iniciar</button>
-      <Horse
-        start={start}
-        setStart={setStart}
-        probabilidades={probabilidades}
+      <SquareRace
         setProbabilidades={setProbabilidades}
       />
       {probabilidades.length > 0 && (
