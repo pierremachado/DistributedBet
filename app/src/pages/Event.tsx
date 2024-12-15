@@ -1,7 +1,6 @@
 import { useState } from "react";
-import "./App.css";
-import SquareRace from "./components/SquareRace";
-function App() {
+import SquareRace from "../components/SquareRace";
+function Event() {
   const [odds, setOdds] = useState<number[]>([]);
   const [quadrados, setQuadrados] = useState<Quadrado[]>([]);
   const [closedForBets, setClosedForBets] = useState<boolean>(false)
@@ -71,4 +70,4 @@ function App() {
   );
 }
 
-export default App;
+export default Event;
