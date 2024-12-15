@@ -1,25 +1,35 @@
 import { useState } from "react";
 import "./App.css";
-import SquareRace from "./components/SquareRace"
+import SquareRace from "./components/SquareRace";
 function App() {
-  const [start, setStart] = useState(false);
-  const [probabilidades, setProbabilidades] = useState([]);
+  const [odds, setOdds] = useState([]);
+  const [quadrados, setQuadrados] = useState([]);
 
   return (
     <>
-      <button onClick={() => setStart(true)}>iniciar</button>
       <SquareRace
-        setProbabilidades={setProbabilidades}
+        setOdds={setOdds}
+        quadrados={quadrados}
+        setQuadrados={setQuadrados}
       />
-      {probabilidades.length > 0 && (
+      {odds.length > 0 && (
         <ul>
-          {probabilidades.map((probabilidade, index) => (
+          {odds.map((odd, index) => (
             <li key={index}>
-              Quadrado {index + 1}: {Math.round(probabilidade * 100)}% de chance de ganhar. Odd: {(1/probabilidade).toFixed(2)}
+              Quadrado {index + 1}: Odd: {odd}
             </li>
           ))}
         </ul>
       )}
+      {quadrados.length > 0 &&
+        quadrados.map((q, i) => (
+          <button style={{ backgroundColor: q.cor }}>
+            {q.id} : {odds[i]}
+          </button>
+        ))}
+      <h4>Valor da aposta:</h4>
+      <input type="number" />
+      <button style={{ backgroundColor: "green" }}>APOSTAR</button>
     </>
   );
 }

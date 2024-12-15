@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-function SquareRace({setProbabilidades}) {
+function SquareRace({setOdds, quadrados, setQuadrados}) {
   const [message, setMessage] = useState("");
-  const [quadrados, setQuadrados] = useState([
-    { id: 1, posX: 0, ativo: true, nitroAtivo: false, cor: "#3498db" },
-  ]);
 
   const LARGURA_QUADRADOS = 30;
 
@@ -29,7 +26,7 @@ function SquareRace({setProbabilidades}) {
       const data = JSON.parse(event.data);
 
       setQuadrados(data.quadrados)
-      setProbabilidades(data.probabilidades)
+      setOdds(data.odds)
       setMessage(data.message);
     };
 

@@ -1,5 +1,4 @@
 import asyncio
-import threading
 import websockets
 import json
 import random
@@ -18,7 +17,7 @@ def calcularProbabilidades():
         for quadrado in quadrados]
     total_tempo = sum(tempos_restantes)
     novasProbabilidades = [(total_tempo-tempo)/total_tempo for tempo in tempos_restantes]
-    total_probabilidades = sum(novasProbabilidades)
+    total_probabilidades = sum(novasProbabilidades) * 105/100
     probabilidades = [prob/total_probabilidades for prob in novasProbabilidades]
     
 
@@ -42,7 +41,8 @@ async def move_squares(websocket, path):
 
     while True:
         mover_quadrados()
-        await websocket.send(json.dumps({"quadrados": quadrados, "probabilidades": probabilidades}))
+        await websocket.send(json.dumps({"quadrados": quadrados, "odds": 
+            [round(1/prob, 2) for prob in probabilidades]}))
         existe_ativo_false = any(quadrado["ativo"] == False for quadrado in quadrados)
         if existe_ativo_false: break
         
