@@ -15,8 +15,7 @@ function App() {
         <ul>
           {probabilidades.map((probabilidade, index) => (
             <li key={index}>
-              Quadrado {index + 1}: {Math.round(probabilidade * 100)}% de chance
-              de ganhar
+              Quadrado {index + 1}: {Math.round(probabilidade * 100)}% de chance de ganhar. Odd: {(1/probabilidade).toFixed(2)}
             </li>
           ))}
         </ul>
