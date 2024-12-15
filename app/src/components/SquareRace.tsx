@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-function SquareRace({setOdds, quadrados, setQuadrados}) {
-  const [message, setMessage] = useState("");
+interface SquareRaceProps {
+  setOdds: React.Dispatch<React.SetStateAction<number[]>>
+  quadrados: Quadrado[] 
+  setQuadrados: React.Dispatch<React.SetStateAction<Quadrado[]>>
+  setIsClosedForBets: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+function SquareRace({setOdds, quadrados, setQuadrados, setIsClosedForBets}: SquareRaceProps) {
+  const [, setMessage] = useState("");
 
   const LARGURA_QUADRADOS = 30;
 
@@ -11,12 +18,12 @@ function SquareRace({setOdds, quadrados, setQuadrados}) {
       height: "70vh",
       backgroundColor: "green",
       overflow: "hidden",
-    },
+    } as React.CSSProperties,
     quadrado: {
       width: `${LARGURA_QUADRADOS}px`,
       aspectRatio: 1,
       position: "absolute",
-    },
+    } as React.CSSProperties,
   };
 
   useEffect(() => {
@@ -27,6 +34,7 @@ function SquareRace({setOdds, quadrados, setQuadrados}) {
 
       setQuadrados(data.quadrados)
       setOdds(data.odds)
+      setIsClosedForBets(data.closedForBets)
       setMessage(data.message);
     };
 

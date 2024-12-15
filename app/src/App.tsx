@@ -2,8 +2,9 @@ import { useState } from "react";
 import "./App.css";
 import SquareRace from "./components/SquareRace";
 function App() {
-  const [odds, setOdds] = useState([]);
-  const [quadrados, setQuadrados] = useState([]);
+  const [odds, setOdds] = useState<number[]>([]);
+  const [quadrados, setQuadrados] = useState<Quadrado[]>([]);
+  const [closedForBets, setClosedForBets] = useState<boolean>(false)
 
   return (
     <>
@@ -11,6 +12,7 @@ function App() {
         setOdds={setOdds}
         quadrados={quadrados}
         setQuadrados={setQuadrados}
+        setIsClosedForBets={setClosedForBets}
       />
       {odds.length > 0 && (
         <ul>
@@ -23,7 +25,7 @@ function App() {
       )}
       {quadrados.length > 0 &&
         quadrados.map((q, i) => (
-          <button style={{ backgroundColor: q.cor }}>
+          <button disabled={closedForBets} style={{ backgroundColor: q.cor }}>
             {q.id} : {odds[i]}
           </button>
         ))}

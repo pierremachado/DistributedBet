@@ -26,7 +26,7 @@ contract BetContract {
         uint8 prediction;
         uint256 odd;
     }
-    mapping(uint256 => mapping (uint8 => uint256)) odds;
+    mapping(uint256 => mapping(uint8 => uint256)) odds;
     mapping(uint256 => Bet[]) eventParticipants;
     mapping(address => Account) wallets;
     Event[] allEvents;
@@ -37,6 +37,7 @@ contract BetContract {
     event Deposit(address indexed user, uint256 amount);
     event Withdrawal(address indexed user, uint256 amount);
     event OddChange(uint256 eventId, uint256 newOdd);
+    event EventStarted(uint256 indexed eventId);
 
     modifier onlyCreator(uint256 _betId) {
         require(
@@ -103,7 +104,8 @@ contract BetContract {
         allEvents.push(newEvent);
         emit EventCreated(allEvents.length - 1, eventType, eventOdds);
         for (uint i = 0; i < eventOdds.length; i++) {
-            odds[allEvents.length-1][eventOdds[i].prediction] = eventOdds[i].odd;
+            odds[allEvents.length - 1][eventOdds[i].prediction] = eventOdds[i]
+                .odd;
         }
     }
 
@@ -132,10 +134,43 @@ contract BetContract {
         );
     }
 
+    function startEvent(
+        uint256 eventId
+    ) public onlyRegistered onlyCreator(eventId) betIsActive(eventId) {
+        emit EventStarted(eventId);
+    }
+
+    function closeEvent(
+        uint256 eventId
+    ) public onlyRegistered onlyCreator(eventId) betIsActive(eventId) {
+        allEvents[eventId].isClosed = true;
+    }
+
+    function payWinners(
+        uint256 eventId,
+        uint8 result
+    ) public onlyRegistered onlyCreator(eventId) {
+        require(allEvents[eventId].isClosed, "still opened event");
+        Bet[] storage participants = eventParticipants[eventId];
+        for (uint i = 0; i < participants.length; i++) {
+            Bet storage b = participants[i];
+            if (b.bet == result) {
+                uint256 payout = b.currentOdd * b.betValue;
+                require(
+                    allEvents[eventId].amount >= payout,
+                    "Insufficient funds to pay winners"
+                );
+                allEvents[eventId].amount -= payout;
+                wallets[b.gambler].amount += payout;
+            }
+        }
+        wallets[allEvents[eventId].creator].amount += allEvents[eventId].amount;
+    }
+
     function closeEventAndPayWinners(
         uint256 eventId,
         uint8 result
-    ) public onlyCreator(eventId) onlyRegistered betIsActive(eventId) {
+    ) public onlyRegistered onlyCreator(eventId) betIsActive(eventId) {
         Bet[] storage participants = eventParticipants[eventId];
         for (uint i = 0; i < participants.length; i++) {
             Bet storage b = participants[i];

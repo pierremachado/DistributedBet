@@ -41,12 +41,15 @@ async def move_squares(websocket, path):
 
     while True:
         mover_quadrados()
-        await websocket.send(json.dumps({"quadrados": quadrados, "odds": 
-            [round(1/prob, 2) for prob in probabilidades]}))
+        await websocket.send(json.dumps(
+            {"quadrados": quadrados, "odds": 
+            [round(1/prob, 2) for prob in probabilidades],
+            "closedForBets": any(quadrado["posX"] > LARGURA_TELA/2 for quadrado in quadrados)}
+            ))
         existe_ativo_false = any(quadrado["ativo"] == False for quadrado in quadrados)
         if existe_ativo_false: break
         
-        if random.random() < 0.01:  # 10% de chance a cada loop de chamar o nitro
+        if random.random() < 0.01:  # 1% de chance a cada loop de chamar o nitro
             ativar_nitro()
         await asyncio.sleep(0.032)
 
