@@ -2,14 +2,33 @@ import React, { useEffect, useState } from "react";
 
 const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
   const [quadrados, setQuadrados] = useState([]);
-  const [intervalo, setIntervalo] = useState(Math.random() * 5000 + 5000);
 
+  const LARGURA_QUADRADOS = 30;
+  const DELAY_MS = 32;
+  const QUANTIDADE_QUADRADOS = 3;
+
+  const styles = {
+    container: {
+      position: "relative",
+      height: "70vh",
+      backgroundColor: "green",
+      overflow: "hidden",
+    },
+    quadrado: {
+      width: `${LARGURA_QUADRADOS}px`,
+      aspectRatio: 1,
+      position: "absolute",
+    },
+  };
+  
   useEffect(() => {
     if (!start) return;
+
     const larguraTela = window.innerWidth;
     const cores = ["#3498db", "#059669", "#b45309", "#3b0764", "#facc15"];
+
     const inicializarQuadrados = () => {
-      const novosQuadrados = Array.from({ length: 5 }, (_, index) => ({
+      const novosQuadrados = Array.from({ length: QUANTIDADE_QUADRADOS }, (_, index) => ({
         id: index,
         posX: 0,
         velocidade: Math.random() + 1,
@@ -23,26 +42,8 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
 
     inicializarQuadrados();
 
-    const calcularProbabilidades = () => {
-      const distanciasRestantes = quadrados.map((quadrado) => {
-        const distanciaRestante = larguraTela - quadrado.posX;
-        const tempoRestante = distanciaRestante / quadrado.velocidade;
-        return tempoRestante;
-      });
-
-      const totalTempo = distanciasRestantes.reduce(
-        (acc, tempo) => acc + tempo,
-        0
-      );
-
-      const novasProbabilidades = distanciasRestantes.map(
-        (tempo) => tempo / totalTempo
-      );
-      setProbabilidades(novasProbabilidades);
-    };
-
     const ativarNitro = () => {
-      const quadradoAleatorio = Math.floor(Math.random() * 5);
+      const quadradoAleatorio = Math.floor(Math.random() * QUANTIDADE_QUADRADOS);
       setQuadrados((prevQuadrados) =>
         prevQuadrados.map((quadrado, index) => {
           if (index === quadradoAleatorio) {
@@ -56,12 +57,39 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
           return quadrado;
         })
       );
-      setIntervalo(Math.random() * 5000 + 5000);
     };
 
     const moverQuadrados = () => {
-      setQuadrados((prevQuadrados) =>
-        prevQuadrados.map((quadrado) => {
+      setQuadrados((prevQuadrados) => {
+        const distanciasRestantes = prevQuadrados.map((quadrado) => {
+          const distanciaRestante = larguraTela - quadrado.posX;
+          const tempoRestante = distanciaRestante / quadrado.velocidade;
+          return tempoRestante;
+        });
+
+        // Inverter a lógica: quadrado que leva menos tempo tem mais chance de ganhar
+        const totalTempo = distanciasRestantes.reduce(
+          (acc, tempo) => acc + tempo,
+          0
+        );
+
+        // Calcular a probabilidade de cada quadrado com base no tempo necessário para percorrer a distância
+        const novasProbabilidades = distanciasRestantes.map(
+          (tempo) => (totalTempo - tempo) / totalTempo
+        );
+
+        // Garantir que a soma das probabilidades seja 100% (ou 1)
+        const somaProbabilidades = novasProbabilidades.reduce(
+          (acc, prob) => acc + prob,
+          0
+        );
+        const probabilidadesNormalizadas = novasProbabilidades.map(
+          (prob) => prob / somaProbabilidades
+        );
+
+        setProbabilidades(probabilidadesNormalizadas);
+
+        return prevQuadrados.map((quadrado) => {
           if (!quadrado.ativo) return quadrado;
 
           let novaVelocidade = quadrado.velocidade;
@@ -71,8 +99,8 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
 
           let novaPosX = quadrado.posX + novaVelocidade;
 
-          if (novaPosX > larguraTela - 50) {
-            novaPosX = larguraTela - 50;
+          if (novaPosX > larguraTela - LARGURA_QUADRADOS) {
+            novaPosX = larguraTela - LARGURA_QUADRADOS;
             setStart(false);
             return {
               ...quadrado,
@@ -84,7 +112,7 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
           }
 
           if (quadrado.nitroAtivo) {
-            const tempoRestante = quadrado.tempoNitro - 16;
+            const tempoRestante = quadrado.tempoNitro - DELAY_MS;
             if (tempoRestante <= 0) {
               return { ...quadrado, nitroAtivo: false, tempoNitro: 0 };
             }
@@ -92,20 +120,21 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
           }
 
           return { ...quadrado, posX: novaPosX };
-        })
-      );
+        });
+      });
     };
 
-    const intervaloNitro = setInterval(ativarNitro, intervalo);
-    const intervaloMovimento = setInterval(moverQuadrados, 32);
-    const intervaloProb = setInterval(calcularProbabilidades, 32);
+    const intervaloNitro = setInterval(ativarNitro, Math.random() * 5000 + 5000);
+    const intervaloMovimento = setInterval(moverQuadrados, DELAY_MS);
 
     return () => {
       clearInterval(intervaloMovimento);
       clearInterval(intervaloNitro);
-      clearInterval(intervaloProb);
     };
   }, [start]);
+
+  // Evitar renderizar antes dos quadrados estarem inicializados
+  if (!quadrados.length) return null;
 
   return (
     <div style={styles.container}>
@@ -114,7 +143,7 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
           key={quadrado.id}
           style={{
             ...styles.quadrado,
-            top: `${50 + quadrado.id * 60}px`,
+            top: `${LARGURA_QUADRADOS + quadrado.id * 60}px`,
             transform: `translateX(${quadrado.posX}px)`,
             opacity: quadrado.ativo ? 1 : 0.5,
             backgroundColor: quadrado.nitroAtivo ? "#e74c3c" : quadrado.cor,
@@ -123,20 +152,6 @@ const Horse = ({ start, setStart, probabilidades, setProbabilidades }) => {
       ))}
     </div>
   );
-};
-
-const styles = {
-  container: {
-    position: "relative",
-    height: "70vh",
-    backgroundColor: "green",
-    overflow: "hidden",
-  },
-  quadrado: {
-    width: "50px",
-    height: "50px",
-    position: "absolute",
-  },
 };
 
 export default Horse;
