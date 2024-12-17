@@ -1,0 +1,13 @@
+services:
+  solidity-tester:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8545:8545"
+
+networks:
+  default:
+    driver: bridge
