@@ -198,4 +198,8 @@ contract BetContract {
         odds[eventId][prediction] = newOdd;
         emit OddChange(eventId, newOdd);
     }
+
+    function getEvents() public view returns (Event[] memory){
+        return allEvents;
+    }
 }
